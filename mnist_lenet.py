@@ -54,7 +54,6 @@ def LeNet():
     model = Model(inputs=inputs, outputs=x)
     return model
 
-
 if __name__ == "__main__":
     model = LeNet()
     
