@@ -4,6 +4,7 @@ from keras.models import Model
 from keras.layers import Conv2D, MaxPooling2D, Dense, Activation, Flatten, Input
 import matplotlib.pyplot as plt
 import numpy as np
+from keras.utils import plot_model
 
 batch_size = 128
 num_classes = 10
@@ -61,6 +62,9 @@ if __name__ == "__main__":
     model.compile(loss='categorical_crossentropy',
                 optimizer=keras.optimizers.Adadelta(),
                 metrics=['accuracy'])
+
+    plot_model(model,to_file='model.png',show_shapes=True)
+
     history = model.fit(x_train, y_train,
             batch_size=batch_size,
             epochs=epochs,
