@@ -1,1 +1,1 @@
-モデル実装練習用レポジトリ
+This repository includes the programs for implementation of various algorithms using Keras
