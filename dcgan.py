@@ -1,4 +1,5 @@
-from keras.layers import Dense, Flatten,Reshape,Input
+from keras.layers import Activation, BatchNormalization, Dense, Dropout, Flatten, Reshape, Input
+from keras.layers.convolutional import Conv2D, Conv2DTranspose
 import matplotlib.pyplot as plt
 import numpy as np
 from keras.utils import plot_model
@@ -10,7 +11,7 @@ from keras.datasets import mnist
 import os
 import time
 
-class GAN():
+class DCGAN():
     def __init__(self):
         self.img_rows = 28
         self.img_cols = 28
@@ -47,22 +48,34 @@ class GAN():
 
     def build_generator(self):
         inputs = Input((self.z_dim,))
-        x = Dense(128,input_dim=self.z_dim)(inputs)
+        x = Dense(256 * 7 * 7, input_dim=self.z_dim)(inputs)
+        x = Reshape((7, 7, 256))(x)
+        x = Conv2DTranspose(128, kernel_size=3, strides=2, padding='same')(x)
+        x = BatchNormalization()(x)
         x = LeakyReLU(alpha=0.01)(x)
-        x = Dense(28 * 28 * 1,activation='tanh')(x)
-        x = Reshape(self.img_shape)(x)
+        x = Conv2DTranspose(64, kernel_size=3, strides=1, padding='same')(x)
+        x = BatchNormalization()(x)
+        x = LeakyReLU(alpha=0.01)(x)
+        x = Conv2DTranspose(1, kernel_size=3, strides=2, padding='same')(x)
+        x = Activation('tanh')(x)
 
         model = Model(inputs=inputs,outputs=x)
         return model
 
     def build_discriminator(self):
         inputs = Input((self.img_shape))
-        x = Flatten(input_shape=self.img_shape)(inputs)
-        x = Dense(128)(x)
+        x = Conv2D(32, kernel_size=3, strides=2, input_shape=self.img_shape, padding='same')(inputs)
         x = LeakyReLU(alpha=0.01)(x)
-        x = Dense(1,activation=('sigmoid'))(x)
-
-        model = Model(inputs=inputs,outputs=x)
+        x = Conv2D(64, kernel_size=3, strides=2, input_shape=self.img_shape, padding='same')(x)
+        x = BatchNormalization()(x)
+        x = LeakyReLU(alpha=0.01)(x)
+        x = Conv2D(128, kernel_size=3, strides=2, input_shape=self.img_shape, padding='same')(x)
+        x = BatchNormalization()(x)
+        x = LeakyReLU(alpha=0.01)(x)
+        x = Flatten()(x)
+        x = Dense(1, activation='sigmoid')(x)
+        
+        model = Model(inputs=inputs, outputs=x)
         return model
 
     def train(self):
@@ -175,12 +188,12 @@ class GAN():
 
 if __name__ == "__main__":
     
-    gan = GAN()
+    dcgan = DCGAN()
     if not os.path.exists('gen_imgs'):
         os.mkdir('gen_imgs')
     print('--start--')
-    gan.train()
-    gan.visualise_loss()
-    gan.visualise_acc()
+    dcgan.train()
+    dcgan.visualise_loss()
+    dcgan.visualise_acc()
 
     
