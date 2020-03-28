@@ -17,7 +17,7 @@ class GAN():
         self.img_shape = (self.img_rows, self.img_cols, self.channels)
         self.z_dim = 100
         
-        self.iterations = 20000
+        self.iterations = 100000
         self.batch_size = 128
         self.sample_interval = 1000
 
@@ -132,6 +132,38 @@ class GAN():
         fig.suptitle('iteration %d' % iteration)
         fig.savefig("gen_imgs/%d.png" % iteration)
         plt.close()
+    
+    def visualise_loss(self):
+        losses = np.array(self.losses)
+
+        plt.figure(figsize=(20, 5))
+        plt.plot(self.iteration_checkpoints, losses.T[0], label="d loss")
+        plt.plot(self.iteration_checkpoints, losses.T[1], label="g loss")
+
+        plt.xticks(self.iteration_checkpoints, rotation=90)
+
+        plt.title("Loss")
+        plt.xlabel("iter")
+        plt.ylabel("loss")
+        plt.legend()
+
+        plt.savefig('loss.png')
+
+
+    def visualise_acc(self):
+        accuracies = np.array(self.accuracies)
+
+        plt.figure(figsize=(20, 5))
+        plt.plot(self.iteration_checkpoints, accuracies, label="d acc")
+
+        plt.xticks(self.iteration_checkpoints, rotation=90)
+        plt.yticks(range(0, 100, 5))
+
+        plt.title("Acc")
+        plt.xlabel("iter")
+        plt.ylabel("acc (%)")
+        plt.legend()
+        plt.savefig('acc.png')
 
 if __name__ == "__main__":
     
@@ -139,5 +171,7 @@ if __name__ == "__main__":
 
     print('--start--')
     gan.train()
+    gan.visualise_loss()
+    gan.visualise_acc()
 
     
